@@ -238,8 +238,6 @@ static async Task<IResult> UpdateUser(int id, CreateEditUserDto editDto, TodoDb 
     if (editDto.Password != null)
         user.Password = editDto.Password;
 
-    if (user.Roles == null)
-        user.Roles = new();
     // la interseccion de ambos conjuntos se mantiene 
     // los q vienen en el dto y no estan en la entity se adicionan
     IEnumerable<int> addIds = new List<int>();
@@ -248,8 +246,9 @@ static async Task<IResult> UpdateUser(int id, CreateEditUserDto editDto, TodoDb 
     IEnumerable<int> removeIds = new List<int>();
 
     if (editDto.Roles != null) {
-        addIds = editDto.Roles.Except(user.Roles.Select(r => r.Id));
-        removeIds = user.Roles.Select(r => r.Id).Except(editDto.Roles);
+        var userRolesIds = user.Roles.Select(r => r.Id);
+        addIds = editDto.Roles.Except(userRolesIds);
+        removeIds = userRolesIds.Except(editDto.Roles);
     }
         
 
